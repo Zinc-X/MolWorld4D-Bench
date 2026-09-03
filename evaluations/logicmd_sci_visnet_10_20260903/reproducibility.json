@@ -1,0 +1,195 @@
+{
+  "profiles": {
+    "quick": {
+      "all_compared_outputs_identical": true,
+      "files": [
+        {
+          "file": "per_replica.csv",
+          "primary_sha256": "8d3ac4bf89292a3b85e5e97fcb1d04c9ad89a05373097186b6d7cd80bd8cf190",
+          "replay_sha256": "8d3ac4bf89292a3b85e5e97fcb1d04c9ad89a05373097186b6d7cd80bd8cf190",
+          "byte_identical": true,
+          "same_shape": true,
+          "same_columns": true,
+          "max_abs_numeric_difference": 0.0,
+          "numeric_identical": true,
+          "non_numeric_identical": true,
+          "content_identical": true
+        },
+        {
+          "file": "per_case.csv",
+          "primary_sha256": "1b500de2afb0288dbc08a643332d5e1f9f222854ad8d4298e2faae6f230f6db3",
+          "replay_sha256": "1b500de2afb0288dbc08a643332d5e1f9f222854ad8d4298e2faae6f230f6db3",
+          "byte_identical": true,
+          "same_shape": true,
+          "same_columns": true,
+          "max_abs_numeric_difference": 0.0,
+          "numeric_identical": true,
+          "non_numeric_identical": true,
+          "content_identical": true
+        },
+        {
+          "file": "summary_by_model.csv",
+          "primary_sha256": "6b1bb1c11d3472f16e1a57edcc0bed1d4e4d7bab1fef19453614597876260377",
+          "replay_sha256": "6b1bb1c11d3472f16e1a57edcc0bed1d4e4d7bab1fef19453614597876260377",
+          "byte_identical": true,
+          "same_shape": true,
+          "same_columns": true,
+          "max_abs_numeric_difference": 0.0,
+          "numeric_identical": true,
+          "non_numeric_identical": true,
+          "content_identical": true
+        },
+        {
+          "file": "metrics_long.csv",
+          "primary_sha256": "b6f2dc1f103c37a69c22aec7b4cd8293308dbc8186ac3dbc4c8b6adcef2a91b0",
+          "replay_sha256": "b6f2dc1f103c37a69c22aec7b4cd8293308dbc8186ac3dbc4c8b6adcef2a91b0",
+          "byte_identical": true,
+          "same_shape": true,
+          "same_columns": true,
+          "max_abs_numeric_difference": 0.0,
+          "numeric_identical": true,
+          "non_numeric_identical": true,
+          "content_identical": true
+        },
+        {
+          "file": "frame_metrics.csv",
+          "primary_sha256": "4e4af0cec32639dcb1ec0f7dab80ba8dc2902acc826e0a18a9adfba1de89f266",
+          "replay_sha256": "4e4af0cec32639dcb1ec0f7dab80ba8dc2902acc826e0a18a9adfba1de89f266",
+          "byte_identical": true,
+          "same_shape": true,
+          "same_columns": true,
+          "max_abs_numeric_difference": 0.0,
+          "numeric_identical": true,
+          "non_numeric_identical": true,
+          "content_identical": true
+        },
+        {
+          "file": "motion_curves.csv",
+          "primary_sha256": "53d16e563c3e4478738ba515381b10a7da9fbce8592da9eb5880a56e7561be7c",
+          "replay_sha256": "53d16e563c3e4478738ba515381b10a7da9fbce8592da9eb5880a56e7561be7c",
+          "byte_identical": true,
+          "same_shape": true,
+          "same_columns": true,
+          "max_abs_numeric_difference": 0.0,
+          "numeric_identical": true,
+          "non_numeric_identical": true,
+          "content_identical": true
+        },
+        {
+          "file": "failures.csv",
+          "primary_sha256": "80da1ddb832fe63483ada14648b714c3c94920c0d8ed39c801094fddd1e95859",
+          "replay_sha256": "80da1ddb832fe63483ada14648b714c3c94920c0d8ed39c801094fddd1e95859",
+          "byte_identical": true,
+          "same_shape": true,
+          "same_columns": true,
+          "max_abs_numeric_difference": 0.0,
+          "numeric_identical": true,
+          "non_numeric_identical": true,
+          "content_identical": true
+        }
+      ]
+    },
+    "full": {
+      "all_compared_outputs_identical": true,
+      "files": [
+        {
+          "file": "per_replica.csv",
+          "primary_sha256": "8fc6984b7fe481dd7a8c7d9fc3a7ac39338d3f5b1460c8b1fd6b09a066ef76b1",
+          "replay_sha256": "8fc6984b7fe481dd7a8c7d9fc3a7ac39338d3f5b1460c8b1fd6b09a066ef76b1",
+          "byte_identical": true,
+          "same_shape": true,
+          "same_columns": true,
+          "max_abs_numeric_difference": 0.0,
+          "numeric_identical": true,
+          "non_numeric_identical": true,
+          "content_identical": true
+        },
+        {
+          "file": "per_case.csv",
+          "primary_sha256": "6c2bdf5a8f74e7b13973fd6164441b5e3a5bc08c80c5700b37841ad1737019b4",
+          "replay_sha256": "6c2bdf5a8f74e7b13973fd6164441b5e3a5bc08c80c5700b37841ad1737019b4",
+          "byte_identical": true,
+          "same_shape": true,
+          "same_columns": true,
+          "max_abs_numeric_difference": 0.0,
+          "numeric_identical": true,
+          "non_numeric_identical": true,
+          "content_identical": true
+        },
+        {
+          "file": "summary_by_model.csv",
+          "primary_sha256": "e3938106a536adff8c4484c9a481c31f4f728a5e85fb6162cf6307b6e0c081a3",
+          "replay_sha256": "e3938106a536adff8c4484c9a481c31f4f728a5e85fb6162cf6307b6e0c081a3",
+          "byte_identical": true,
+          "same_shape": true,
+          "same_columns": true,
+          "max_abs_numeric_difference": 0.0,
+          "numeric_identical": true,
+          "non_numeric_identical": true,
+          "content_identical": true
+        },
+        {
+          "file": "metrics_long.csv",
+          "primary_sha256": "2d82f161c25ee85abd967202e6e90185c1ac845ebe4fb345d39c25b4f060d31d",
+          "replay_sha256": "2d82f161c25ee85abd967202e6e90185c1ac845ebe4fb345d39c25b4f060d31d",
+          "byte_identical": true,
+          "same_shape": true,
+          "same_columns": true,
+          "max_abs_numeric_difference": 0.0,
+          "numeric_identical": true,
+          "non_numeric_identical": true,
+          "content_identical": true
+        },
+        {
+          "file": "frame_metrics.csv",
+          "primary_sha256": "d79487b5cd46ad8b001c34db5cb9b8e2d0f6b489ff05b9366cfa4e4d763e48c8",
+          "replay_sha256": "d79487b5cd46ad8b001c34db5cb9b8e2d0f6b489ff05b9366cfa4e4d763e48c8",
+          "byte_identical": true,
+          "same_shape": true,
+          "same_columns": true,
+          "max_abs_numeric_difference": 0.0,
+          "numeric_identical": true,
+          "non_numeric_identical": true,
+          "content_identical": true
+        },
+        {
+          "file": "motion_curves.csv",
+          "primary_sha256": "29391289b93127e997ecd8ce62c3683372372ed0a40afae37a1986dd4e7df609",
+          "replay_sha256": "29391289b93127e997ecd8ce62c3683372372ed0a40afae37a1986dd4e7df609",
+          "byte_identical": true,
+          "same_shape": true,
+          "same_columns": true,
+          "max_abs_numeric_difference": 0.0,
+          "numeric_identical": true,
+          "non_numeric_identical": true,
+          "content_identical": true
+        },
+        {
+          "file": "failures.csv",
+          "primary_sha256": "80da1ddb832fe63483ada14648b714c3c94920c0d8ed39c801094fddd1e95859",
+          "replay_sha256": "80da1ddb832fe63483ada14648b714c3c94920c0d8ed39c801094fddd1e95859",
+          "byte_identical": true,
+          "same_shape": true,
+          "same_columns": true,
+          "max_abs_numeric_difference": 0.0,
+          "numeric_identical": true,
+          "non_numeric_identical": true,
+          "content_identical": true
+        },
+        {
+          "file": "window_metrics.csv",
+          "primary_sha256": "94ed7339b66a9cf45efc7fca44458adfbce067b0214faa85afc892d179cb3c2c",
+          "replay_sha256": "94ed7339b66a9cf45efc7fca44458adfbce067b0214faa85afc892d179cb3c2c",
+          "byte_identical": true,
+          "same_shape": true,
+          "same_columns": true,
+          "max_abs_numeric_difference": 0.0,
+          "numeric_identical": true,
+          "non_numeric_identical": true,
+          "content_identical": true
+        }
+      ]
+    }
+  },
+  "all_compared_outputs_identical": true
+}

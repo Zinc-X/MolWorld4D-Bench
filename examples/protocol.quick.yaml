@@ -1,0 +1,30 @@
+protocol_version: "1.0"
+suite: synthetic-protein-ligand-demo
+profile: quick
+
+selections:
+  ligand_resname: MOL
+  alignment: protein_backbone
+
+analysis:
+  max_frames: 50
+  ligand_stay_cutoff_A: 5.0
+  contact_cutoff_A: 4.5
+  pca_components: 2
+
+cases:
+  - id: DEMO
+    topology: self_describing.npz
+    reference:
+      dt_ns: 0.5
+      trajectories:
+        - demo_data/reference.npz
+    predictions:
+      - name: calibrated
+        dt_ns: 0.5
+        trajectories:
+          - demo_data/prediction_good.npz
+      - name: frozen
+        dt_ns: 0.5
+        trajectories:
+          - demo_data/prediction_frozen.npz

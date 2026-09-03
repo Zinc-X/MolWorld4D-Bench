@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+build/
+dist/
+demo-out/
+examples/demo_data/
+quarantine/
+
+# Generated evaluation outputs; keep protocols, manifests, and validation notes.
+evaluations/**/.mplconfig*/
+evaluations/**/quick/
+evaluations/**/full/
+evaluations/**/replay/
+evaluations/**/v*/

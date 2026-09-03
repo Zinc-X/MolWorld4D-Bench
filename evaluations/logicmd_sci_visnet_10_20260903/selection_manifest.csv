@@ -1,0 +1,11 @@
+case_id,stratum,reference_kinetics,reference_mean_ligand_rmsd_A,previous_split,sampling_seed,sampling_rule
+2A14,Q1_tight,stable,0.850040943999999,train,20260903,python_random_2_per_Q_sorted_input
+3L3M,Q1_tight,stable,1.104539408,train,20260903,python_random_2_per_Q_sorted_input
+2HMV,Q2_stable,stable,1.562958236,train,20260903,python_random_2_per_Q_sorted_input
+2JGS,Q2_stable,stable,1.47764584,train,20260903,python_random_2_per_Q_sorted_input
+5FSC,Q3_mid,moderate,1.7369285879999998,train,20260903,python_random_2_per_Q_sorted_input
+6ABX,Q3_mid,stable,1.726313138,train,20260903,python_random_2_per_Q_sorted_input
+3TWP,Q4_mobile,moderate,2.18851684,train,20260903,python_random_2_per_Q_sorted_input
+4K6Z,Q4_mobile,moderate,2.5637792380000004,valid,20260903,python_random_2_per_Q_sorted_input
+1M2Q,Q5_loose,unstable,5.561216852,train,20260903,python_random_2_per_Q_sorted_input
+2UYQ,Q5_loose,unstable,5.055437316,train,20260903,python_random_2_per_Q_sorted_input

@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ComplexMD-Eval protocol",
+  "type": "object",
+  "required": ["protocol_version", "suite", "cases"],
+  "properties": {
+    "protocol_version": {"const": "1.0"},
+    "suite": {"type": "string", "minLength": 1},
+    "profile": {"enum": ["quick", "full"]},
+    "strict_case_pairing": {"type": "boolean", "default": true},
+    "selections": {
+      "type": "object",
+      "properties": {
+        "ligand_resname": {"type": "string"},
+        "alignment": {"enum": ["protein_backbone", "protein_heavy"]}
+      }
+    },
+    "analysis": {
+      "type": "object",
+      "properties": {
+        "frame_stride": {"type": "integer", "minimum": 1},
+        "max_frames": {"type": ["integer", "null"], "minimum": 2},
+        "windows_ns": {"type": "array", "items": {"type": "number", "exclusiveMinimum": 0}},
+        "pca_components": {"type": "integer", "minimum": 1},
+        "acf_max_lag_frames": {"type": "integer", "minimum": 1},
+        "tica_lag_frames": {"type": "integer", "minimum": 1},
+        "tica_input_components": {"type": "integer", "minimum": 2},
+        "tica_components": {"type": "integer", "minimum": 1},
+        "n_states": {"type": "integer", "minimum": 2},
+        "msm_lag_frames": {"type": "array", "items": {"type": "integer", "minimum": 1}},
+        "min_transition_events": {"type": "integer", "minimum": 1},
+        "min_mfpt_pairs": {"type": "integer", "minimum": 1},
+        "max_ck_rmse": {"type": "number", "minimum": 0},
+        "fes_bins": {"type": "integer", "minimum": 4},
+        "temperature_K": {"type": "number", "exclusiveMinimum": 0},
+        "structural_stride": {"type": "integer", "minimum": 1},
+        "interaction_stride": {"type": "integer", "minimum": 1},
+        "solvent_stride": {"type": "integer", "minimum": 1},
+        "bootstrap_samples": {"type": "integer", "minimum": 20},
+        "bootstrap_confidence": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "bootstrap_block_frames": {"type": "integer", "minimum": 1},
+        "random_seed": {"type": "integer"},
+        "trust_threshold_ratio": {"type": "number", "exclusiveMinimum": 0},
+        "trust_persistence_frames": {"type": "integer", "minimum": 1},
+        "efficiency": {
+          "type": "object",
+          "properties": {
+            "runtime_table": {"type": "string"},
+            "applies_to": {"enum": ["prediction", "reference", "both"]},
+            "case_column": {"type": "string"},
+            "runtime_column": {"type": "string"},
+            "model_column": {"type": "string"},
+            "replica_column": {"type": "string"},
+            "hardware": {"type": "string"},
+            "precision": {"type": "string"},
+            "batch_size": {"type": "integer", "minimum": 1}
+          }
+        },
+        "metrics": {"type": "object", "additionalProperties": {"type": "boolean"}},
+        "physical": {"type": "object"}
+      }
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "topology", "reference", "predictions"],
+        "properties": {
+          "id": {"type": "string"},
+          "topology": {"type": "string"},
+          "reference": {"$ref": "#/$defs/trajectoryGroup"},
+          "predictions": {
+            "type": "array",
+            "items": {
+              "allOf": [
+                {"$ref": "#/$defs/trajectoryGroup"},
+                {"type": "object", "required": ["name"]}
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "trajectoryGroup": {
+      "type": "object",
+      "required": ["trajectories", "dt_ns"],
+      "properties": {
+        "name": {"type": "string"},
+        "dt_ns": {"type": "number", "exclusiveMinimum": 0},
+        "trajectories": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "oneOf": [
+              {"type": "string"},
+              {
+                "type": "object",
+                "required": ["path"],
+                "properties": {
+                  "path": {"type": "string"},
+                  "observables": {"type": "string"},
+                  "runtime_s": {"type": "number", "exclusiveMinimum": 0},
+                  "hardware": {"type": "string"},
+                  "precision": {"type": "string"},
+                  "batch_size": {"type": "integer", "minimum": 1},
+                  "metadata": {"type": "object"}
+                }
+              }
+            ]
+          }
+        },
+        "runtime_s": {"type": "number", "exclusiveMinimum": 0},
+        "hardware": {"type": "string"},
+        "precision": {"type": "string"},
+        "batch_size": {"type": "integer", "minimum": 1},
+        "metadata": {"type": "object"}
+      }
+    }
+  }
+}

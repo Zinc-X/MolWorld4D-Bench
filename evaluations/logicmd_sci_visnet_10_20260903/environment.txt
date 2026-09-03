@@ -1,0 +1,9 @@
+Python 3.10.12
+complexmd-eval 0.1.0
+numpy 1.26.4
+pandas 2.3.3
+scipy 1.15.3
+PyYAML 6.0.3
+matplotlib 3.10.9
+MDAnalysis 2.9.0
+Linux a100-node01 5.15.0-78-generic #85-Ubuntu SMP Fri Jul 7 15:25:09 UTC 2023 x86_64 x86_64 x86_64 GNU/Linux

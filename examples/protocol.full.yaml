@@ -1,0 +1,59 @@
+protocol_version: "1.0"
+suite: synthetic-protein-ligand-demo
+profile: full
+
+selections:
+  ligand_resname: MOL
+  alignment: protein_backbone
+
+analysis:
+  frame_stride: 1
+  max_frames: null
+  windows_ns: [5, 10, 20, 29.5]
+  ligand_stay_cutoff_A: 5.0
+  contact_cutoff_A: 4.5
+  contact_frequency_threshold: 0.10
+  pca_components: 3
+  acf_max_lag_frames: 15
+  tica_lag_frames: 5
+  tica_input_components: 10
+  tica_components: 3
+  n_states: 4
+  msm_lag_frames: [5, 10, 15]
+  min_transition_events: 5
+  rare_transition_max_count: 3
+  fes_bins: 20
+  temperature_K: 300
+  structural_stride: 2
+  interaction_stride: 1
+  solvent_stride: 1
+  bootstrap_samples: 500
+  bootstrap_confidence: 0.95
+  bootstrap_block_frames: 5
+  random_seed: 20260903
+  trust_threshold_ratio: 2.0
+  trust_persistence_frames: 5
+  physical:
+    bond_relative_error_max: 0.20
+    angle_error_max_rad: 0.35
+    clash_distance_A: 1.0
+    bond_valid_fraction_min: 0.99
+    ligand_bond_valid_fraction_min: 0.90
+    angle_valid_fraction_min: 0.90
+
+cases:
+  - id: DEMO
+    topology: self_describing.npz
+    reference:
+      dt_ns: 0.5
+      trajectories:
+        - demo_data/reference.npz
+    predictions:
+      - name: calibrated
+        dt_ns: 0.5
+        trajectories:
+          - demo_data/prediction_good.npz
+      - name: frozen
+        dt_ns: 0.5
+        trajectories:
+          - demo_data/prediction_frozen.npz

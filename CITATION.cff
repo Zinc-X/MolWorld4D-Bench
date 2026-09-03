@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use ComplexMD-Eval, cite the release and the underlying metric methods relevant to your study."
+title: "MolWorld4D-Bench (ComplexMD-Eval)"
+type: software
+authors:
+  - name: "Zinc-X"
+    website: "https://github.com/Zinc-X"
+    orcid: "https://orcid.org/0009-0008-6552-3247"
+version: 0.2.0
+date-released: 2026-09-03
+license: MIT
+repository-code: "https://github.com/Zinc-X/MolWorld4D-Bench"
+url: "https://github.com/Zinc-X/MolWorld4D-Bench"

@@ -1,0 +1,145 @@
+protocol_version: "1.0"
+suite: logicmd-sci-visnet-inf499-stratified10-20260903-v0.2
+profile: full
+strict_case_pairing: true
+
+selections:
+  ligand_resname: MOL
+  alignment: protein_backbone
+
+analysis:
+  frame_stride: 1
+  max_frames: null
+  pca_components: 3
+  acf_max_lag_frames: 100
+  windows_ns: [10, 50, 100, 250, 499]
+  ligand_stay_cutoff_A: 5.0
+  contact_cutoff_A: 4.5
+  contact_frequency_threshold: 0.10
+  efficiency:
+    runtime_table: selected_inference_time.csv
+    applies_to: prediction
+    case_column: case_id
+    runtime_column: inference_wall_seconds
+    hardware: recorded original inference host
+    precision: original run configuration
+    batch_size: 1
+  physical:
+    bond_relative_error_max: 0.20
+    angle_error_max_rad: 0.35
+    clash_distance_A: 1.0
+    bond_valid_fraction_min: 0.99
+    ligand_bond_valid_fraction_min: 0.90
+    angle_valid_fraction_min: 0.90
+
+cases:
+  - id: 2A14
+    topology: /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/2A14/2A14_sliced.pdb
+    reference:
+      dt_ns: 1.0
+      trajectories:
+        - /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/2A14/2A14_md_sliced.xtc
+    predictions:
+      - name: logicmd_sci_visnet_epoch1_step40000_inf499_ode10
+        dt_ns: 1.0
+        trajectories:
+          - /data/xincheng/AtomosVerse/misato_val/logicmd_sci_eval55/pred_sci_visnet_inf499/2A14/2A14_model_ode10_inf499.xtc
+  - id: 3L3M
+    topology: /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/3L3M/3L3M_sliced.pdb
+    reference:
+      dt_ns: 1.0
+      trajectories:
+        - /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/3L3M/3L3M_md_sliced.xtc
+    predictions:
+      - name: logicmd_sci_visnet_epoch1_step40000_inf499_ode10
+        dt_ns: 1.0
+        trajectories:
+          - /data/xincheng/AtomosVerse/misato_val/logicmd_sci_eval55/pred_sci_visnet_inf499/3L3M/3L3M_model_ode10_inf499.xtc
+  - id: 2HMV
+    topology: /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/2HMV/2HMV_sliced.pdb
+    reference:
+      dt_ns: 1.0
+      trajectories:
+        - /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/2HMV/2HMV_md_sliced.xtc
+    predictions:
+      - name: logicmd_sci_visnet_epoch1_step40000_inf499_ode10
+        dt_ns: 1.0
+        trajectories:
+          - /data/xincheng/AtomosVerse/misato_val/logicmd_sci_eval55/pred_sci_visnet_inf499/2HMV/2HMV_model_ode10_inf499.xtc
+  - id: 2JGS
+    topology: /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/2JGS/2JGS_sliced.pdb
+    reference:
+      dt_ns: 1.0
+      trajectories:
+        - /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/2JGS/2JGS_md_sliced.xtc
+    predictions:
+      - name: logicmd_sci_visnet_epoch1_step40000_inf499_ode10
+        dt_ns: 1.0
+        trajectories:
+          - /data/xincheng/AtomosVerse/misato_val/logicmd_sci_eval55/pred_sci_visnet_inf499/2JGS/2JGS_model_ode10_inf499.xtc
+  - id: 5FSC
+    topology: /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/5FSC/5FSC_sliced.pdb
+    reference:
+      dt_ns: 1.0
+      trajectories:
+        - /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/5FSC/5FSC_md_sliced.xtc
+    predictions:
+      - name: logicmd_sci_visnet_epoch1_step40000_inf499_ode10
+        dt_ns: 1.0
+        trajectories:
+          - /data/xincheng/AtomosVerse/misato_val/logicmd_sci_eval55/pred_sci_visnet_inf499/5FSC/5FSC_model_ode10_inf499.xtc
+  - id: 6ABX
+    topology: /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/6ABX/6ABX_sliced.pdb
+    reference:
+      dt_ns: 1.0
+      trajectories:
+        - /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/6ABX/6ABX_md_sliced.xtc
+    predictions:
+      - name: logicmd_sci_visnet_epoch1_step40000_inf499_ode10
+        dt_ns: 1.0
+        trajectories:
+          - /data/xincheng/AtomosVerse/misato_val/logicmd_sci_eval55/pred_sci_visnet_inf499/6ABX/6ABX_model_ode10_inf499.xtc
+  - id: 3TWP
+    topology: /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/3TWP/3TWP_sliced.pdb
+    reference:
+      dt_ns: 1.0
+      trajectories:
+        - /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/3TWP/3TWP_md_sliced.xtc
+    predictions:
+      - name: logicmd_sci_visnet_epoch1_step40000_inf499_ode10
+        dt_ns: 1.0
+        trajectories:
+          - /data/xincheng/AtomosVerse/misato_val/logicmd_sci_eval55/pred_sci_visnet_inf499/3TWP/3TWP_model_ode10_inf499.xtc
+  - id: 4K6Z
+    topology: /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/4K6Z/4K6Z_sliced.pdb
+    reference:
+      dt_ns: 1.0
+      trajectories:
+        - /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/4K6Z/4K6Z_md_sliced.xtc
+    predictions:
+      - name: logicmd_sci_visnet_epoch1_step40000_inf499_ode10
+        dt_ns: 1.0
+        trajectories:
+          - /data/xincheng/AtomosVerse/misato_val/logicmd_sci_eval55/pred_sci_visnet_inf499/4K6Z/4K6Z_model_ode10_inf499.xtc
+  - id: 1M2Q
+    topology: /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/1M2Q/1M2Q_sliced.pdb
+    reference:
+      dt_ns: 1.0
+      trajectories:
+        - /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/1M2Q/1M2Q_md_sliced.xtc
+    predictions:
+      - name: logicmd_sci_visnet_epoch1_step40000_inf499_ode10
+        dt_ns: 1.0
+        trajectories:
+          - /data/xincheng/AtomosVerse/misato_val/logicmd_sci_eval55/pred_sci_visnet_inf499/1M2Q/1M2Q_model_ode10_inf499.xtc
+  - id: 2UYQ
+    topology: /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/2UYQ/2UYQ_sliced.pdb
+    reference:
+      dt_ns: 1.0
+      trajectories:
+        - /data/xincheng/AtomosVerse/misato_val/logicmd_lig10_eval/work/2UYQ/2UYQ_md_sliced.xtc
+    predictions:
+      - name: logicmd_sci_visnet_epoch1_step40000_inf499_ode10
+        dt_ns: 1.0
+        trajectories:
+          - /data/xincheng/AtomosVerse/misato_val/logicmd_sci_eval55/pred_sci_visnet_inf499/2UYQ/2UYQ_model_ode10_inf499.xtc
