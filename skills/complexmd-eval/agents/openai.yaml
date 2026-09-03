@@ -1,4 +1,4 @@
 interface:
   display_name: "ComplexMD-Eval"
   short_description: "Evaluate generated protein-ligand MD trajectories"
-  default_prompt: "Use $complexmd-eval to evaluate predicted protein-ligand trajectories with an auditable quick or full protocol."
+  default_prompt: "Use $complexmd-eval to choose a task profile and evaluate protein-ligand trajectories on an auditable physical-time protocol."

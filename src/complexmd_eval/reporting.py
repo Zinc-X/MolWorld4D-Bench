@@ -153,7 +153,8 @@ def write_markdown_report(
             "- Paired RMSD is a short-horizon diagnostic, not a long-horizon trajectory score.",
             "- `overmove_bb` and RMSF amplitude ratio near one indicate matched motion amplitude; low values can indicate freezing.",
             "- Missing or non-estimable metrics remain missing and are never converted to zero.",
-            "- Compare only runs with the same protocol clock, atom representation, and physical windows.",
+            "- Compare only runs with the same resolved common clock, horizon, atom representation, and physical windows.",
+            "- Inspect `timebase_audit.csv` and `parameter_resolution.csv` for resampling and time-rounding decisions.",
             "- Kinetic metrics are conditional on transition evidence; inspect `kinetics_estimable` and module status.",
             "- Proxy chemistry is labelled explicitly when hydrogens or formal charges are unavailable.",
         ]

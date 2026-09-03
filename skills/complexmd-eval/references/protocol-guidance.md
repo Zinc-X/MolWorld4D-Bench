@@ -12,28 +12,34 @@ trajectory for standard MD files. See the project `README.md` and
 
 ## Profile routing
 
-`quick` is for checkpoint decisions. Keep cases, starting frames, and model
-seeds fixed across checkpoints so changes reflect the model rather than sampling
-noise. It intentionally skips ACF and long-window analysis.
+Choose `screen`, `structural`, `ensemble`, `kinetics`, or `long_horizon` for the
+claim being tested; use `full` only when every module is needed. `quick` is a
+legacy 100-retained-frame compatibility profile.
 
-`full` is for research conclusions. Set `windows_ns` explicitly, and set
-`frame_stride` so the retained temporal resolution remains appropriate for the
-fastest process being discussed. A 1-us trajectory does not justify a 1-us
-kinetic claim if the reference does not contain enough transitions.
+Use physical-time controls (`tica_lag_ns`, `msm_lags_ns`, `acf_max_lag_ns`, and
+`bootstrap_block_ns`). `auto` is duration-relative and its resolved value must be
+reported from `parameter_resolution.csv`. A long trajectory does not justify a
+long-timescale kinetic claim without adequate transitions.
 
 ## Comparability
 
-Separate protocols when any of these change:
+Separate result tables when any of these resolved properties change:
 
-- generated or reference physical time step;
-- total physical window;
+- common time grid or comparison horizon;
+- resolved physical windows;
 - atom representation or topology;
 - ligand/protein selection;
 - thermodynamic condition;
 - conditional trajectory versus unordered equilibrium sampling task.
 
-The current evaluator pairs frames only at common physical times. Distributional
-metrics do not require framewise correspondence.
+Uniform commensurate clocks are exactly downsampled without coordinate
+interpolation. Non-uniform clocks or excessive coarsening are rejected. Use
+`comparison_horizon: common` unless a reference-, prediction-, or full-duration
+claim is explicitly intended.
+
+Global, case, and prediction `analysis` mappings are deeply merged in that order.
+Use scoped overrides for genuine system/model differences and inspect the frozen
+result in `analysis_resolution.json`.
 
 ## Results
 

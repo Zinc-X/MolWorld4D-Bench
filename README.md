@@ -8,17 +8,20 @@ ComplexMD-Eval compares predicted trajectories with reference MD while keeping
 physical validity, motion amplitude, ensemble agreement, temporal agreement,
 and interaction fidelity as separate scientific claims.
 
-The package has two profiles that use the same metric implementations:
+Task-oriented profiles use the same metric implementations:
 
-- `quick`: inexpensive, fixed-panel checks for training checkpoints;
-- `full`: longer physical-time windows plus temporal diagnostics for research runs
-  from tens of nanoseconds to microseconds.
+- `screen`: low-cost physical and motion checks;
+- `structural`: torsions, structural observables, interactions, and solvent;
+- `ensemble`: PCA/TICA, state occupancy, and FES;
+- `kinetics`: ACF, VAMP/MSM/ITS/MFPT, rare events, and replica baselines;
+- `long_horizon`: automatic physical-time windows across structural and kinetic metrics;
+- `full`: every module; `quick` remains as a 100-frame compatibility profile.
 
-Version 0.2 adds reference-fitted TICA/VAMP, state models, MFPT/ITS/CK diagnostics,
-FES, torsions, standard structural observables, classified interactions, solvent
-analysis, optional thermodynamic time series, replica baselines, bootstrap
-uncertainty, advanced windows, and standardized throughput metadata. Metrics that
-cannot be supported by a particular input are explicitly marked `not_estimable`.
+Version 0.3 adds physical-time lag/block controls, exact common-grid resampling,
+explicit comparison-horizon policies, automatic duration-relative windows,
+case/model analysis overrides, and evidence-limited adaptive state counts. Metrics
+that cannot be supported by a particular input are explicitly marked
+`not_estimable`.
 
 ## Install
 
@@ -81,6 +84,7 @@ used as the physical clock.
 python examples/generate_demo_data.py
 complexmd-eval validate examples/protocol.quick.yaml
 complexmd-eval run examples/protocol.quick.yaml --out demo-out/quick
+complexmd-eval run examples/protocol.kinetics.yaml --out demo-out/kinetics
 complexmd-eval run examples/protocol.full.yaml --out demo-out/full
 ```
 
@@ -103,14 +107,18 @@ selections:
   alignment: protein_backbone
 
 analysis:
-  frame_stride: 10
-  max_frames: 10000
-  windows_ns: [10, 50, 100, 500, 1000]
+  comparison_horizon: common   # common | reference | prediction | full_each
+  frame_stride: 1
+  max_frames: null
+  windows_ns: auto
+  auto_windows:
+    mode: fractions
+    fractions: [0.1, 0.25, 0.5, 0.75, 1.0]
   ligand_stay_cutoff_A: 5.0
   contact_cutoff_A: 4.5
   contact_frequency_threshold: 0.10
   pca_components: 3
-  acf_max_lag_frames: 100
+  acf_max_lag_ns: auto
   physical:
     bond_relative_error_max: 0.20
     angle_error_max_rad: 0.35
@@ -119,16 +127,20 @@ analysis:
     ligand_bond_valid_fraction_min: 0.90
     angle_valid_fraction_min: 0.90
 
-  tica_lag_frames: 10
+  tica_lag_ns: auto
   tica_input_components: 10
   tica_components: 3
-  n_states: 6
-  msm_lag_frames: [10, 20, 50]
+  n_states: auto
+  n_states_min: 2
+  n_states_max: 12
+  min_frames_per_state: 20
+  min_lagged_samples_per_state: 5
+  msm_lags_ns: auto
   fes_bins: 24
   structural_stride: 10
   interaction_stride: 2
   bootstrap_samples: 500
-  bootstrap_block_frames: 20
+  bootstrap_block_ns: auto
 
 cases:
   - id: 1ABC
@@ -141,6 +153,9 @@ cases:
     predictions:
       - name: model_a
         dt_ns: 0.01
+        analysis:                 # optional model-specific override
+          tica_lag_ns: 2.0
+          n_states_max: 8
         trajectories:
           - path: /data/1ABC/model_a_seed_0.xtc
             observables: /data/1ABC/model_a_seed_0_observables.csv  # optional
@@ -154,11 +169,17 @@ loaded time spacing, while `max_frames` is applied after striding. For very long
 trajectories, choose a stride that retains the fastest process being evaluated;
 do not use aggressive subsampling for high-frequency ACF claims.
 
+`analysis` may also appear on a case or prediction group. Settings are deeply
+merged in `global -> case -> prediction` order. Physical-time parameters are
+converted separately on each harmonized case/model clock. Legacy
+`*_frames` controls remain supported, but new protocols should use `*_ns`.
+
 ## Outputs
 
 ```text
 run/
 ├── protocol.resolved.yaml
+├── analysis_resolution.json
 ├── run_manifest.json
 ├── per_replica.csv
 ├── metrics_long.csv
@@ -167,6 +188,8 @@ run/
 ├── failures.csv
 ├── metric_coverage.csv
 ├── module_status.csv
+├── timebase_audit.csv
+├── parameter_resolution.csv
 ├── frame_metrics.csv
 ├── motion_curves.csv
 ├── window_metrics.csv       # full profile when windows are configured
@@ -251,8 +274,10 @@ complexmd-eval run protocol.yaml --profile full --out research-eval/step-40000
 - Equilibrium-distribution agreement does not establish kinetic correctness.
 - A stable but motionless trajectory is detected by overmove and RMSF-amplitude
   ratios; stability alone is not success.
-- Models with different physical clocks, atom representations, or windows must
-  be evaluated in separate protocols.
+- Commensurate physical clocks are exactly downsampled to a common grid without
+  coordinate interpolation. Unsafe or excessive coarsening is rejected.
+- Compare only results with the same resolved horizon and windows; inspect
+  `timebase_audit.csv` and `parameter_resolution.csv`.
 - Sparse-event rates and MFPT are marked non-estimable when transition evidence
   is below the protocol minimum; finite estimates still require CK/ITS review.
 - Enhanced-sampling references require correct reweighting and cannot be used as

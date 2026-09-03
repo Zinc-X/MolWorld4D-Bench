@@ -59,6 +59,29 @@ class AdvancedMetricTests(unittest.TestCase):
         self.assertEqual(len(tables["tica_projections"]), 160)
         self.assertEqual(len(tables["state_occupancy"]), 3)
 
+    def test_adaptive_state_count_is_reported(self) -> None:
+        metrics, tables, status = slow_state_metrics(
+            self.reference,
+            self.prediction,
+            self.masks,
+            {
+                "tica_lag_frames": 2,
+                "tica_input_components": 4,
+                "tica_components": 2,
+                "n_states": "auto",
+                "n_states_min": 2,
+                "n_states_max": 5,
+                "min_frames_per_state": 10,
+                "msm_lag_frames": [2, 4],
+                "fes_bins": 8,
+            },
+        )
+        self.assertEqual(metrics["state_selection_auto"], 1)
+        self.assertGreaterEqual(metrics["n_states_resolved"], 2)
+        self.assertLessEqual(metrics["n_states_resolved"], 5)
+        self.assertEqual(len(tables["state_occupancy"]), metrics["n_states_resolved"])
+        self.assertIn("state_selection", status)
+
     def test_thermodynamic_and_efficiency_adapters(self) -> None:
         observable = {
             "potential_energy_kJ_mol": np.linspace(-10, -8, len(self.reference.positions)),

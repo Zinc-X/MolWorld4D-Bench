@@ -6,7 +6,7 @@ authors:
   - name: "Zinc-X"
     website: "https://github.com/Zinc-X"
     orcid: "https://orcid.org/0009-0008-6552-3247"
-version: 0.2.0
+version: 0.3.0
 date-released: 2026-09-03
 license: MIT
 repository-code: "https://github.com/Zinc-X/MolWorld4D-Bench"

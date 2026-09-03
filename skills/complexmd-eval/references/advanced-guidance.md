@@ -13,6 +13,11 @@ TICA W2 and state occupancy for ensemble claims. Use transition matrices, ITS,
 MFPT, rates, and rare-event recovery only for ordered trajectories with a
 correct physical clock.
 
+Prefer physical-time lag controls. Verify the resolved frame lag, ns value, and
+rounding error in `parameter_resolution.csv`. Adaptive state selection is
+reference-only and evidence-limited; report `n_states_resolved` and repeat with
+fixed/sensitivity settings for publication-grade kinetic claims.
+
 Before a kinetic claim, require adequate reference transition counts, acceptable
 reference CK error, approximate implied-timescale convergence across lag choices,
 and preferably multiple independent reference replicas. `kinetics_estimable=1`

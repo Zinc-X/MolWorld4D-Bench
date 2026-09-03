@@ -139,6 +139,39 @@ def _assign(values: np.ndarray, centers: np.ndarray) -> np.ndarray:
     return np.argmin(((values[:, None, :] - centers[None, :, :]) ** 2).sum(axis=2), axis=1)
 
 
+def _state_centers(values: np.ndarray, lag: int, config: dict, seed: int) -> tuple[np.ndarray, str]:
+    """Select a reference-only state count while avoiding sparse state models."""
+    requested = config.get("n_states", "auto")
+    if requested != "auto":
+        return _kmeans(values, int(requested), seed), "fixed"
+    minimum = max(2, int(config.get("n_states_min", 2)))
+    maximum = max(minimum, int(config.get("n_states_max", 12)))
+    min_frames = max(2, int(config.get("min_frames_per_state", 20)))
+    min_frames = max(
+        min_frames, int(lag) * max(1, int(config.get("min_lagged_samples_per_state", 5)))
+    )
+    effective_samples = max(2, len(values) // max(1, int(lag)))
+    upper = min(maximum, len(values) // min_frames, max(minimum, int(np.sqrt(effective_samples)) + 1))
+    upper = max(minimum, min(upper, len(values)))
+    min_events = max(1, int(config.get("min_transition_events", 5)))
+    max_ck_rmse = float(config.get("max_ck_rmse", 0.15))
+    for n_states in range(upper, minimum - 1, -1):
+        centers = _kmeans(values, n_states, seed)
+        states = _assign(values, centers)
+        occupancy = np.bincount(states, minlength=len(centers))
+        events = int(np.sum(states[1:] != states[:-1]))
+        ck_error = _ck_error(states, lag, len(centers))
+        if (
+            len(occupancy)
+            and occupancy.min() >= min_frames
+            and events >= max(min_events, n_states - 1)
+            and np.isfinite(ck_error)
+            and ck_error <= max_ck_rmse
+        ):
+            return centers, "auto_evidence_limited"
+    return _kmeans(values, minimum, seed), "auto_minimum_fallback"
+
+
 def transition_counts(states: np.ndarray, lag: int, n_states: int) -> np.ndarray:
     counts = np.zeros((n_states, n_states), dtype=float)
     if lag < 1 or len(states) <= lag:
@@ -259,7 +292,6 @@ def slow_state_metrics(
     lag = int(config.get("tica_lag_frames", 10))
     input_components = int(config.get("tica_input_components", 10))
     tica_components = int(config.get("tica_components", 3))
-    n_states = int(config.get("n_states", 6))
     seed = int(config.get("random_seed", 20260903))
     min_events = int(config.get("min_transition_events", 5))
     rare_max = int(config.get("rare_transition_max_count", 3))
@@ -276,7 +308,9 @@ def slow_state_metrics(
     pred_tica = tica.transform(pred_input)
     pred_tica_model = fit_tica(pred_input, lag, tica_components)
 
-    centers = _kmeans(ref_tica[:, : min(3, ref_tica.shape[1])], n_states, seed)
+    centers, state_selection = _state_centers(
+        ref_tica[:, : min(3, ref_tica.shape[1])], lag, config, seed
+    )
     ref_states = _assign(ref_tica[:, : centers.shape[1]], centers)
     pred_states = _assign(pred_tica[:, : centers.shape[1]], centers)
     n_states = len(centers)
@@ -328,6 +362,8 @@ def slow_state_metrics(
     ref_vamp = vamp2_score(ref_input, lag, tica_components)
     pred_vamp = vamp2_score(pred_input, lag, tica_components)
     metrics = {
+        "n_states_resolved": int(n_states),
+        "state_selection_auto": int(str(config.get("n_states", "auto")) == "auto"),
         "tica_lag_ns": lag_ns,
         "tica1_eigenvalue_ref": float(tica.eigenvalues[0]),
         "tica1_eigenvalue_pred": float(pred_tica_model.eigenvalues[0]),
@@ -438,6 +474,7 @@ def slow_state_metrics(
     else:
         reason = ""
     status = {"status": "ok" if kinetics_estimable else "partial", "reason": reason}
+    status["state_selection"] = state_selection
     return metrics, tables, status
 
 

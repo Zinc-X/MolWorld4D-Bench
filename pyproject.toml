@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "complexmd-eval"
-version = "0.2.0"
+version = "0.3.0"
 description = "MolWorld4D-Bench evaluation engine for generated protein-small-molecule MD trajectories"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -50,6 +50,15 @@ complexmd-eval = "complexmd_eval.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.data-files]
+"share/complexmd-eval/schemas" = ["schemas/*.json"]
+"share/complexmd-eval/docs" = ["docs/*.md"]
+"share/complexmd-eval/examples" = ["examples/*.yaml", "examples/*.py"]
+"share/complexmd-eval/examples/demo_data" = ["examples/demo_data/*.npz"]
+"share/complexmd-eval/skills/complexmd-eval" = ["skills/complexmd-eval/SKILL.md"]
+"share/complexmd-eval/skills/complexmd-eval/agents" = ["skills/complexmd-eval/agents/*.yaml"]
+"share/complexmd-eval/skills/complexmd-eval/references" = ["skills/complexmd-eval/references/*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

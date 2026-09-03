@@ -41,9 +41,10 @@ from .metrics import (
 )
 from .models import Trajectory
 from .observables import efficiency_metrics, thermodynamic_metrics
-from .protocol import load_protocol, public_protocol, resolve_path
+from .protocol import load_protocol, public_protocol, resolve_path, scoped_profile
 from .reporting import summarize_by_model, write_figures, write_markdown_report
 from .structural import structural_metrics
+from .timebase import harmonize_timebases, resolve_time_parameters, resolve_windows
 
 
 def _items(group: dict, base: Path) -> list[dict]:
@@ -177,6 +178,12 @@ def _reference_baselines(
     for left_index in range(len(references)):
         for right_index in range(left_index + 1, len(references)):
             left, right = references[left_index], references[right_index]
+            harmonized, right, _, clock = harmonize_timebases([left], right, analysis)
+            left = harmonized[0]
+            pair_analysis, _ = resolve_time_parameters(
+                analysis, float(clock["common_dt_ns"]),
+                float(clock["resolved_common_horizon_ns"]), enabled
+            )
             row = {"case_id": case_id, "reference_i": left_index, "reference_j": right_index}
             row.update(paired_metrics(left, right, masks))
             row.update(rmsf_metrics(left.positions, right, masks))
@@ -188,7 +195,7 @@ def _reference_baselines(
             )
             row.update(contact)
             if enabled.get("slow_modes"):
-                slow, _, slow_status = slow_state_metrics(left, right, masks, analysis)
+                slow, _, slow_status = slow_state_metrics(left, right, masks, pair_analysis)
                 row.update(slow)
                 row["kinetics_status"] = slow_status["status"]
             rows.append(row)
@@ -408,7 +415,9 @@ def _evaluate_replica(
             estimate, lower, upper = moving_block_bootstrap_mean(values, block, n_bootstrap, seed, confidence)
             uncertainty_rows.append(
                 {"metric": metric, "estimate": estimate, "ci_lower": lower, "ci_upper": upper,
-                 "confidence": confidence, "block_frames": block, "n_bootstrap": n_bootstrap, "seed": seed}
+                 "confidence": confidence, "block_frames": block,
+                 "block_ns": block * float(prediction.time_ns[1] - prediction.time_ns[0]),
+                 "n_bootstrap": n_bootstrap, "seed": seed}
             )
         tables["case_uncertainty"] = pd.DataFrame(uncertainty_rows)
         status("case_uncertainty", "ok")
@@ -437,21 +446,26 @@ def evaluate_protocol(
     selection = protocol.get("selections", {}) or {}
     ligand_resname = str(selection.get("ligand_resname", "MOL"))
     alignment = str(selection.get("alignment", "protein_backbone"))
-    runtime_table, runtime_config = _runtime_lookup(resolved_profile["analysis"], base)
-
     replica_rows: list[dict] = []
     output_tables: dict[str, list[pd.DataFrame]] = {}
     module_status_rows: list[dict] = []
     baseline_tables: list[pd.DataFrame] = []
     failures: list[dict] = []
+    analysis_resolutions: list[dict] = []
+    enabled_modules: set[str] = set()
+    uncertainty_requested = False
 
     for case in protocol["cases"]:
         case_id = str(case["id"])
         topology = resolve_path(str(case["topology"]), base)
+        case_profile = scoped_profile(protocol, case)
+        case_runtime_table, case_runtime_config = _runtime_lookup(case_profile["analysis"], base)
         try:
-            references = _load_group(case["reference"], topology, base, resolved_profile["analysis"])
+            references = _load_group(case["reference"], topology, base, case_profile["analysis"])
             references = [
-                _attach_runtime(item, runtime_table, runtime_config, case_id, "reference", i, "reference")
+                _attach_runtime(
+                    item, case_runtime_table, case_runtime_config, case_id, "reference", i, "reference"
+                )
                 for i, item in enumerate(references)
             ]
             masks = build_masks(references[0].atoms, ligand_resname, alignment)
@@ -460,11 +474,13 @@ def evaluate_protocol(
             for reference in references:
                 validate_atom_mapping(references[0], reference)
                 aligned_refs.append(align_trajectory(reference, anchor, masks.alignment))
-            reference_primary = aligned_refs[0]
-            reference_pool = _pool(aligned_refs)
-            if resolved_profile["metrics"].get("reference_baseline"):
+            baseline_needed = case_profile["metrics"].get("reference_baseline") or any(
+                scoped_profile(protocol, case, group)["metrics"].get("reference_baseline")
+                for group in case["predictions"]
+            )
+            if baseline_needed:
                 baseline, baseline_status = _reference_baselines(
-                    case_id, aligned_refs, masks, resolved_profile["analysis"], resolved_profile["metrics"]
+                    case_id, aligned_refs, masks, case_profile["analysis"], case_profile["metrics"]
                 )
                 if not baseline.empty:
                     baseline_tables.append(baseline)
@@ -475,10 +491,26 @@ def evaluate_protocol(
 
         for prediction_group in case["predictions"]:
             model = str(prediction_group["name"])
+            model_profile = scoped_profile(protocol, case, prediction_group)
+            model_analysis = model_profile["analysis"]
+            model_runtime_table, model_runtime_config = _runtime_lookup(model_analysis, base)
+            enabled_modules.update(name for name, enabled in model_profile["metrics"].items() if enabled)
+            uncertainty_requested = uncertainty_requested or bool(model_profile["metrics"].get("uncertainty"))
+            analysis_resolutions.append(
+                {
+                    "case_id": case_id,
+                    "model": model,
+                    "profile": model_profile["name"],
+                    "analysis": model_analysis,
+                    "metrics": model_profile["metrics"],
+                }
+            )
             try:
-                predictions = _load_group(prediction_group, topology, base, resolved_profile["analysis"])
+                predictions = _load_group(prediction_group, topology, base, model_analysis)
                 predictions = [
-                    _attach_runtime(item, runtime_table, runtime_config, case_id, model, i, "prediction")
+                    _attach_runtime(
+                        item, model_runtime_table, model_runtime_config, case_id, model, i, "prediction"
+                    )
                     for i, item in enumerate(predictions)
                 ]
             except Exception as exc:
@@ -486,18 +518,62 @@ def evaluate_protocol(
                 continue
             for replica, prediction in enumerate(predictions):
                 try:
-                    validate_atom_mapping(reference_primary, prediction)
+                    validate_atom_mapping(aligned_refs[0], prediction)
                     aligned_prediction = align_trajectory(prediction, anchor, masks.alignment)
+                    harmonized_refs, harmonized_prediction, timebase_audit, clock = harmonize_timebases(
+                        aligned_refs, aligned_prediction, model_analysis
+                    )
+                    common_dt = float(clock["common_dt_ns"])
+                    common_horizon = float(clock["resolved_common_horizon_ns"])
+                    resolved_analysis, parameter_audit = resolve_time_parameters(
+                        model_analysis, common_dt, common_horizon, model_profile["metrics"]
+                    )
+                    windows, window_audit = resolve_windows(resolved_analysis, common_horizon, common_dt)
+                    resolved_analysis["windows_ns"] = windows
+                    replica_profile = dict(model_profile)
+                    replica_profile["analysis"] = resolved_analysis
+                    reference_primary = harmonized_refs[0]
+                    reference_pool = _pool(harmonized_refs)
                     scalar, tables, statuses = _evaluate_replica(
                         case_id,
                         model,
                         replica,
                         reference_primary,
                         reference_pool,
-                        aligned_refs,
-                        aligned_prediction,
+                        harmonized_refs,
+                        harmonized_prediction,
                         masks,
-                        resolved_profile,
+                        replica_profile,
+                    )
+                    scalar.update(
+                        {
+                            "common_dt_ns": common_dt,
+                            "resolved_common_horizon_ns": common_horizon,
+                            "max_resample_factor": float(clock["max_resample_factor"]),
+                            "n_resolved_windows": len(windows),
+                        }
+                    )
+                    audit_tables = {
+                        "timebase_audit": timebase_audit,
+                        "parameter_resolution": pd.concat(
+                            [parameter_audit, window_audit], ignore_index=True
+                        ),
+                    }
+                    for name, table in audit_tables.items():
+                        if not table.empty:
+                            tables[name] = _tag(table, case_id, model, replica)
+                    statuses.append(
+                        {
+                            "case_id": case_id,
+                            "model": model,
+                            "replica": replica,
+                            "module": "timebase_harmonization",
+                            "status": "ok",
+                            "reason": (
+                                f"dt={common_dt:g}_ns; horizon={common_horizon:g}_ns; "
+                                f"policy={clock['comparison_horizon']}"
+                            ),
+                        }
                     )
                     replica_rows.append(scalar)
                     for name, table in tables.items():
@@ -522,7 +598,7 @@ def evaluate_protocol(
     failure_df = pd.DataFrame(failures, columns=["case_id", "model", "replica", "stage", "error"])
     summary = summarize_by_model(per_case)
     bootstrap = pd.DataFrame()
-    if resolved_profile["metrics"].get("uncertainty"):
+    if uncertainty_requested:
         bootstrap = bootstrap_case_medians(
             per_case,
             [column for column in per_case.columns if column not in {"case_id", "model", "n_prediction_replicas"}],
@@ -548,6 +624,9 @@ def evaluate_protocol(
     summary.to_csv(out / "summary_by_model.csv", index=False)
     failure_df.to_csv(out / "failures.csv", index=False)
     module_status.to_csv(out / "module_status.csv", index=False)
+    (out / "analysis_resolution.json").write_text(
+        json.dumps(analysis_resolutions, indent=2), encoding="utf-8"
+    )
     for name, table in combined_tables.items():
         if not table.empty:
             table.to_csv(out / f"{name}.csv", index=False)
@@ -578,8 +657,11 @@ def evaluate_protocol(
         "n_failures": len(failure_df),
         "n_scalar_metrics": len(metric_columns),
         "n_fully_covered_scalar_metrics": int(sum(row["coverage"] == 1.0 for row in coverage_rows)),
-        "implemented_modules": [name for name, enabled in resolved_profile["metrics"].items() if enabled],
+        "implemented_modules": sorted(enabled_modules),
         "scientific_guards": [
+            "different sampling intervals are exactly downsampled to a commensurate common grid; coordinates are not interpolated",
+            "physical-time lag and block settings are resolved per case/model and recorded with rounding errors",
+            "comparison horizons and automatic windows are frozen in audit outputs",
             "thermodynamic observables require an observables CSV; coordinates alone are insufficient",
             "water metrics require explicit solvent atoms",
             "kinetic rates and MFPT are emitted only when minimum transition evidence is met",

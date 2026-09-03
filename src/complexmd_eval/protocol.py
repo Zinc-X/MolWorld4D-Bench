@@ -9,7 +9,7 @@ from typing import Any
 
 import yaml
 
-from .profiles import PROFILES, resolve_profile
+from .profiles import PROFILES, deep_merge, normalize_analysis_overrides, resolve_profile
 
 
 class ProtocolError(ValueError):
@@ -40,6 +40,45 @@ def _trajectory_paths(group: dict, where: str) -> list[str]:
     return out
 
 
+def _validate_analysis(value: Any, where: str) -> dict:
+    if value is None:
+        return {}
+    if not isinstance(value, dict):
+        raise ProtocolError(f"{where} must be an object")
+    horizon = value.get("comparison_horizon")
+    if horizon is not None and horizon not in {"common", "reference", "prediction", "full_each"}:
+        raise ProtocolError(
+            f"{where}.comparison_horizon must be common, reference, prediction, or full_each"
+        )
+    windows = value.get("windows_ns")
+    if isinstance(windows, str) and windows != "auto":
+        raise ProtocolError(f"{where}.windows_ns string value must be 'auto'")
+    for key in ("tica_lag_ns", "acf_max_lag_ns", "bootstrap_block_ns"):
+        setting = value.get(key)
+        if setting is not None and setting != "auto" and float(setting) <= 0:
+            raise ProtocolError(f"{where}.{key} must be positive or 'auto'")
+    msm_lags = value.get("msm_lags_ns")
+    if msm_lags is not None and msm_lags != "auto":
+        if not isinstance(msm_lags, list) or not msm_lags or any(float(item) <= 0 for item in msm_lags):
+            raise ProtocolError(f"{where}.msm_lags_ns must be a non-empty positive list or 'auto'")
+    n_states = value.get("n_states")
+    if n_states is not None and n_states != "auto" and int(n_states) < 2:
+        raise ProtocolError(f"{where}.n_states must be at least 2 or 'auto'")
+    return value
+
+
+def scoped_profile(protocol: dict, case: dict | None = None, prediction: dict | None = None) -> dict:
+    """Resolve global, case, and prediction analysis overrides in that order."""
+    analysis = normalize_analysis_overrides(protocol.get("analysis", {}) or {})
+    if case is not None:
+        analysis = deep_merge(analysis, normalize_analysis_overrides(case.get("analysis", {}) or {}))
+    if prediction is not None:
+        analysis = deep_merge(
+            analysis, normalize_analysis_overrides(prediction.get("analysis", {}) or {})
+        )
+    return resolve_profile(str(protocol["profile"]), analysis)
+
+
 def load_protocol(path: str | Path, profile_override: str | None = None, check_paths: bool = True) -> dict[str, Any]:
     protocol_path = Path(path).resolve()
     if not protocol_path.is_file():
@@ -53,6 +92,7 @@ def load_protocol(path: str | Path, profile_override: str | None = None, check_p
     profile_name = profile_override or raw.get("profile", "full")
     if profile_name not in PROFILES:
         raise ProtocolError(f"profile must be one of {sorted(PROFILES)}")
+    _validate_analysis(raw.get("analysis"), "analysis")
     cases = raw["cases"]
     if not isinstance(cases, list) or not cases:
         raise ProtocolError("cases must be a non-empty list")
@@ -63,6 +103,7 @@ def load_protocol(path: str | Path, profile_override: str | None = None, check_p
         if not isinstance(case, dict):
             raise ProtocolError(f"{where} must be an object")
         _require(case, ("id", "topology", "reference", "predictions"), where)
+        _validate_analysis(case.get("analysis"), f"{where}.analysis")
         case_id = str(case["id"])
         if case_id in seen_cases:
             raise ProtocolError(f"duplicate case id: {case_id}")
@@ -79,6 +120,7 @@ def load_protocol(path: str | Path, profile_override: str | None = None, check_p
         for j, pred in enumerate(preds):
             pwhere = f"{where}.predictions[{j}]"
             _require(pred, ("name", "trajectories", "dt_ns"), pwhere)
+            _validate_analysis(pred.get("analysis"), f"{pwhere}.analysis")
             _trajectory_paths(pred, pwhere)
             if float(pred["dt_ns"]) <= 0:
                 raise ProtocolError(f"{pwhere}.dt_ns must be > 0")

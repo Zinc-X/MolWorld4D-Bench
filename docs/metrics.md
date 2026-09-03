@@ -24,6 +24,8 @@ refitting. The module produces:
 - reference-fitted Cartesian-CA PCA preprocessing and TICA projections;
 - TICA eigenvalues/timescales, TICA Gaussian W2, and VAMP-2 scores;
 - deterministic reference-fitted clustering, state occupancy JSD and coverage;
+- fixed or evidence-limited adaptive state counts requiring reference occupancy,
+  lagged sample, transition, and CK evidence, with the resolved count saved;
 - transition count/probability matrices, Chapman--Kolmogorov RMSE;
 - implied-timescale curves at configured lags;
 - transition statistics and MFPT have separate estimability gates; MFPT also
@@ -92,6 +94,8 @@ cross-method efficiency claims.
 - case-bootstrap median intervals summarize the benchmark panel;
 - cumulative windows include motion/validity plus RMSF, contacts, PCA, FES,
   state occupancy, and state-transition comparison.
+- explicit or automatic windows are resolved from the shared available physical
+  duration, never from an assumed 100 ns or 1 microsecond trajectory length.
 
 One trajectory replayed twice is not two independent replicas.
 
@@ -104,5 +108,7 @@ The main long-form files are `paired_curves.csv`, `rmsf_profiles.csv`,
 `structural_timeseries.csv`, `interaction_timeseries.csv`,
 `solvent_timeseries.csv`, `thermodynamic_timeseries.csv`,
 `window_advanced.csv`, `case_uncertainty.csv`, `bootstrap_ci.csv`, and
-`efficiency.csv`. Files whose modules are not estimable may be absent; their
+`efficiency.csv`. Clock and configuration decisions are recorded in
+`timebase_audit.csv`, `parameter_resolution.csv`, and `analysis_resolution.json`.
+Files whose modules are not estimable may be absent; their
 reason remains in `module_status.csv`.

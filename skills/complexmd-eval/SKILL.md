@@ -15,12 +15,13 @@ Use the installed `complexmd-eval` CLI; do not reimplement metrics in the skill.
 
 ## Choose a profile
 
-- Use `quick` while training: a fixed case panel, short trajectories, physical
-  checks, motion calibration, RMSF, PCA, and protein-ligand contacts.
-- Use `full` for research evaluation from tens of ns to microseconds: retain the
-  core metrics and add slow modes/state models, FES, torsions, SASA/DSSP,
-  classified interactions, optional thermodynamics, replica baselines,
-  uncertainty, efficiency, and cumulative physical-time windows.
+- Use `screen` for low-cost physical and motion checks while training.
+- Use `structural` for torsions, Rg/SASA/DSSP, contacts, interactions, and solvent.
+- Use `ensemble` for PCA/TICA, state occupancy, and FES.
+- Use `kinetics` for ordered-trajectory ACF, VAMP/MSM/ITS/MFPT, and rare events.
+- Use `long_horizon` for duration-relative cumulative-window recovery.
+- Use `full` when every module is needed. Use `quick` only to replay legacy
+  100-retained-frame protocols.
 
 Read [references/protocol-guidance.md](references/protocol-guidance.md) when
 creating or reviewing a protocol, interpreting missing metrics, or deciding
@@ -31,8 +32,8 @@ making kinetic, thermodynamic, solvent, or efficiency claims.
 
 ## Workflow
 
-1. Confirm topology, atom mapping, ligand resname, physical `dt_ns`, and the
-   intended profile. Protocol time overrides trajectory-header defaults.
+1. Confirm topology, atom mapping, ligand resname, physical `dt_ns`, intended
+   profile, and `comparison_horizon`. Protocol time overrides trajectory headers.
 2. Validate before computing:
 
    ```bash
@@ -45,16 +46,18 @@ making kinetic, thermodynamic, solvent, or efficiency claims.
    complexmd-eval run protocol.yaml --out evaluation/run-name
    ```
 
-4. Inspect `failures.csv`, `module_status.csv`, and `metric_coverage.csv` before
-   reading medians.
+4. Inspect `failures.csv`, `module_status.csv`, `timebase_audit.csv`,
+   `parameter_resolution.csv`, and `metric_coverage.csv` before reading medians.
 5. Interpret `report.md` together with `per_case.csv`, `motion_curves.csv`, and
    `window_metrics.csv`. Keep physical validity, motion amplitude, ensemble
    agreement, temporal agreement, and interaction fidelity as separate claims.
 
 ## Invariants
 
-- Compare only identical clocks, physical windows, atom representations, and
-  paired case sets in one table.
+- Permit different clocks only when `timebase_audit.csv` confirms exact common-grid
+  downsampling. Never reinterpret an unsafe resampling failure as a missing metric.
+- Compare only identical resolved horizons, physical windows, atom
+  representations, and paired case sets in one table.
 - Protein-align before evaluating ligand pose; never ligand-align away pose drift.
 - Paired RMSD is a short-horizon diagnostic, not a long-horizon headline.
 - Stability without motion is not success; always inspect `overmove_bb` and
