@@ -48,6 +48,35 @@ python -m pip install -e '.[all]'
 
 Python 3.10 or newer is required.
 
+## Codex Skill and Plugin
+
+The repository is also a Skill-only Codex Plugin. GitHub releases include a
+`molworld4d-bench-plugin-<version>.zip` archive. The Skill chooses an
+appropriate evaluation profile and enforces the package's scientific
+comparability and estimability rules; all numerical work remains in the tested
+Python engine.
+
+Check the installed engine and optional capabilities before a run:
+
+```bash
+complexmd-eval doctor --profile full
+complexmd-eval doctor --protocol protocol.yaml
+```
+
+For personal use outside this repository, preview and then install the bundled
+Skill. Installation never overwrites an existing different Skill:
+
+```bash
+complexmd-eval skill install --scope user --dry-run
+complexmd-eval skill install --scope user
+complexmd-eval skill status
+```
+
+For a repository-scoped installation, use `--scope repo --repo /path/to/repo`.
+Use `--mode symlink` only for a development checkout that will remain at a stable
+path. Installing the Plugin or Skill does not install scientific Python
+dependencies; install `complexmd-eval` or `complexmd-eval[all]` separately.
+
 ## Author
 
 [Zinc-X](https://github.com/Zinc-X) ·

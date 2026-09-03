@@ -1,0 +1,35 @@
+{
+  "name": "molworld4d-bench",
+  "version": "0.3.1",
+  "description": "Auditable evaluation workflows for generated protein-ligand molecular dynamics trajectories.",
+  "author": {
+    "name": "Zinc-X",
+    "url": "https://github.com/Zinc-X"
+  },
+  "homepage": "https://github.com/Zinc-X/MolWorld4D-Bench",
+  "repository": "https://github.com/Zinc-X/MolWorld4D-Bench",
+  "license": "MIT",
+  "keywords": [
+    "molecular-dynamics",
+    "protein-ligand",
+    "trajectory-evaluation",
+    "benchmark"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "MolWorld4D-Bench",
+    "shortDescription": "Evaluate generated protein-ligand MD trajectories",
+    "longDescription": "Choose an auditable physical-time evaluation profile, validate trajectory protocols, run ComplexMD-Eval, and interpret structural, ensemble, kinetic, interaction, uncertainty, and efficiency results without overstating non-estimable metrics.",
+    "developerName": "Zinc-X",
+    "category": "Productivity",
+    "capabilities": [
+      "Analysis"
+    ],
+    "websiteURL": "https://github.com/Zinc-X/MolWorld4D-Bench",
+    "defaultPrompt": [
+      "Evaluate my generated protein-ligand trajectories against reference MD.",
+      "Choose a defensible MolWorld4D-Bench profile for this protocol.",
+      "Audit these ComplexMD-Eval results for scientific comparability."
+    ]
+  }
+}

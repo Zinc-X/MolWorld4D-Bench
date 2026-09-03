@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "complexmd-eval"
-version = "0.3.0"
+version = "0.3.1"
 description = "MolWorld4D-Bench evaluation engine for generated protein-small-molecule MD trajectories"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -52,6 +52,7 @@ complexmd-eval = "complexmd_eval.cli:main"
 where = ["src"]
 
 [tool.setuptools.data-files]
+"share/complexmd-eval/plugin" = [".codex-plugin/plugin.json"]
 "share/complexmd-eval/schemas" = ["schemas/*.json"]
 "share/complexmd-eval/docs" = ["docs/*.md"]
 "share/complexmd-eval/examples" = ["examples/*.yaml", "examples/*.py"]

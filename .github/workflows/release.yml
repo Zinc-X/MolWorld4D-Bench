@@ -21,14 +21,22 @@ jobs:
         run: python -m pip install -e ".[all]" build twine
       - name: Run unit tests
         run: python -m unittest discover -s tests -v
+      - name: Check runtime preflight
+        run: complexmd-eval doctor --profile full --strict
       - name: Build wheel and source distribution
         run: python -m build
       - name: Check distribution metadata
         run: python -m twine check dist/*
+      - name: Build Codex plugin archive
+        run: python scripts/build_plugin_bundle.py --out-dir plugin-dist
       - uses: actions/upload-artifact@v4
         with:
           name: python-package-distributions
           path: dist/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: codex-plugin-distribution
+          path: plugin-dist/
 
   github-release:
     name: Attach distributions to GitHub Release
@@ -41,10 +49,14 @@ jobs:
         with:
           name: python-package-distributions
           path: dist/
+      - uses: actions/download-artifact@v4
+        with:
+          name: codex-plugin-distribution
+          path: plugin-dist/
       - name: Upload release assets
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${GITHUB_REF_NAME}" dist/* --clobber
+        run: gh release upload "${GITHUB_REF_NAME}" dist/* plugin-dist/* --clobber
 
   pypi-publish:
     name: Publish distributions to PyPI

@@ -12,6 +12,7 @@ description: >-
 # ComplexMD-Eval
 
 Use the installed `complexmd-eval` CLI; do not reimplement metrics in the skill.
+This skill requires `complexmd-eval>=0.3.1,<0.4.0`.
 
 ## Choose a profile
 
@@ -32,23 +33,33 @@ making kinetic, thermodynamic, solvent, or efficiency claims.
 
 ## Workflow
 
-1. Confirm topology, atom mapping, ligand resname, physical `dt_ns`, intended
+1. Check the engine and profile-specific runtime before evaluating:
+
+   ```bash
+   complexmd-eval doctor --profile PROFILE
+   ```
+
+   If the command is unavailable, explain that the engine must be installed and
+   ask before running `python -m pip install "complexmd-eval[all]>=0.3.1,<0.4"`.
+   Treat doctor errors as blockers. Treat warnings as explicitly missing optional
+   capabilities; do not silently claim the affected metrics.
+2. Confirm topology, atom mapping, ligand resname, physical `dt_ns`, intended
    profile, and `comparison_horizon`. Protocol time overrides trajectory headers.
-2. Validate before computing:
+3. Validate before computing:
 
    ```bash
    complexmd-eval validate protocol.yaml
    ```
 
-3. Run without changing scientific fields after validation:
+4. Run without changing scientific fields after validation:
 
    ```bash
    complexmd-eval run protocol.yaml --out evaluation/run-name
    ```
 
-4. Inspect `failures.csv`, `module_status.csv`, `timebase_audit.csv`,
+5. Inspect `failures.csv`, `module_status.csv`, `timebase_audit.csv`,
    `parameter_resolution.csv`, and `metric_coverage.csv` before reading medians.
-5. Interpret `report.md` together with `per_case.csv`, `motion_curves.csv`, and
+6. Interpret `report.md` together with `per_case.csv`, `motion_curves.csv`, and
    `window_metrics.csv`. Keep physical validity, motion amplitude, ensemble
    agreement, temporal agreement, and interaction fidelity as separate claims.
 

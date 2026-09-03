@@ -5,6 +5,7 @@ __pycache__/
 .coverage
 build/
 dist/
+plugin-dist/
 demo-out/
 examples/demo_data/
 quarantine/

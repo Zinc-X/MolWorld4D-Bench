@@ -1,6 +1,8 @@
 include LICENSE
 include CITATION.cff
+include .codex-plugin/plugin.json
 recursive-include schemas *.json
 recursive-include docs *.md
 recursive-include examples *.yaml *.py *.npz
 recursive-include skills *.md *.yaml
+recursive-include scripts *.py
