@@ -29,11 +29,11 @@ jobs:
         run: python -m twine check dist/*
       - name: Build Codex plugin archive
         run: python scripts/build_plugin_bundle.py --out-dir plugin-dist
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: python-package-distributions
           path: dist/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: codex-plugin-distribution
           path: plugin-dist/
